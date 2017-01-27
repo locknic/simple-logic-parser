@@ -12,30 +12,40 @@ public class MiniParser
 {
 	private static final Map<Character, String> TOKEN_MAP = createTokenMap();
 	private static final Map<String, String> KEYWORD_MAP = createKeywordMap();
-
+	
+	private static final List<String> IGNORE_LIST = createIgnoreList();
+	
 	private static Map<Character, String> createTokenMap()
 	{
-		Map<Character, String> map = new HashMap<Character, String>();
-		map.put(' ', "SPACE");
-		map.put('\n', "NEWLINE");
-		map.put('{', "LEFT-BRACE");
-		map.put('}', "RIGHT-BRACE");
-		map.put('(', "LEFT-PARENTHESIS");
-		map.put(')', "RIGHT-PARENTHESIS");
-		map.put('=', "EQUALS");
-		map.put('!', "NOT");
-		map.put(';', "SEMICOLON");
-		return Collections.unmodifiableMap(map);
+		Map<Character, String> tokenMap = new HashMap<Character, String>();
+		tokenMap.put(' ', "SPACE");
+		tokenMap.put('\n', "NEWLINE");
+		tokenMap.put('{', "LEFT-BRACE");
+		tokenMap.put('}', "RIGHT-BRACE");
+		tokenMap.put('(', "LEFT-PARENTHESIS");
+		tokenMap.put(')', "RIGHT-PARENTHESIS");
+		tokenMap.put('=', "EQUALS");
+		tokenMap.put('!', "NOT");
+		tokenMap.put(';', "SEMICOLON");
+		return Collections.unmodifiableMap(tokenMap);
 	}
 
 	private static Map<String, String> createKeywordMap()
 	{
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("if", "KEYWORD-IF");
-		map.put("else", "KEYWORD-ELSE");
-		map.put("true", "KEYWORD-TRUE");
-		map.put("false", "KEYWORD-FALSE");
-		return Collections.unmodifiableMap(map);
+		Map<String, String> keywordMap = new HashMap<String, String>();
+		keywordMap.put("if", "KEYWORD-IF");
+		keywordMap.put("else", "KEYWORD-ELSE");
+		keywordMap.put("true", "KEYWORD-TRUE");
+		keywordMap.put("false", "KEYWORD-FALSE");
+		return Collections.unmodifiableMap(keywordMap);
+	}
+	
+	private static List<String> createIgnoreList()
+	{
+		List<String> ignoreList = new ArrayList<String>();
+		ignoreList.add("SPACE");
+		ignoreList.add("NEWLINE");
+		return Collections.unmodifiableList(ignoreList);
 	}
 
 	public static boolean isLetter(char character)
@@ -59,9 +69,12 @@ public class MiniParser
 					String token;
 					if ((token = TOKEN_MAP.get(chars[loc])) != null)
 					{
-						tokens.add(token);
+						if (!IGNORE_LIST.contains(token))
+						{
+							tokens.add(token);
+						}
 					}
-					else
+					else if (isLetter(chars[loc]))
 					{
 						String word = chars[loc] + "";
 						while (loc + 1 < line.length() && isLetter(chars[loc + 1]))
@@ -78,6 +91,10 @@ public class MiniParser
 						{
 							tokens.add("IDENTIFIER(" + word + ")");
 						}
+					}
+					else
+					{
+						tokens.add("INVALID(" + chars[loc] + ")");
 					}
 					loc++;
 				}
