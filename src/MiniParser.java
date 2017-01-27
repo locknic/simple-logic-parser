@@ -10,21 +10,21 @@ import java.util.Map;
 
 public class MiniParser
 {
-	private static final Map<String, String> TOKEN_MAP = createTokenMap();
+	private static final Map<Character, String> TOKEN_MAP = createTokenMap();
 	private static final Map<String, String> KEYWORD_MAP = createKeywordMap();
 
-	private static Map<String, String> createTokenMap()
+	private static Map<Character, String> createTokenMap()
 	{
-		Map<String, String> map = new HashMap<String, String>();
-		map.put(" ", "SPACE");
-		map.put("\n", "NEWLINE");
-		map.put("{", "LEFT-BRACE");
-		map.put("}", "RIGHT-BRACE");
-		map.put("(", "LEFT-PARENTHESIS");
-		map.put(")", "RIGHT-PARENTHESIS");
-		map.put("=", "EQUALS");
-		map.put("!", "NOT");
-		map.put(";", "SEMICOLON");
+		Map<Character, String> map = new HashMap<Character, String>();
+		map.put(' ', "SPACE");
+		map.put('\n', "NEWLINE");
+		map.put('{', "LEFT-BRACE");
+		map.put('}', "RIGHT-BRACE");
+		map.put('(', "LEFT-PARENTHESIS");
+		map.put(')', "RIGHT-PARENTHESIS");
+		map.put('=', "EQUALS");
+		map.put('!', "NOT");
+		map.put(';', "SEMICOLON");
 		return Collections.unmodifiableMap(map);
 	}
 
@@ -40,7 +40,7 @@ public class MiniParser
 
 	public static boolean isLetter(char character)
 	{
-		return false;
+		return character >= 'a' && character <= 'z';
 	}
 
 	public static List<String> getTokensFromFile(String inputPath) throws IOException
@@ -64,7 +64,7 @@ public class MiniParser
 					else
 					{
 						String word = chars[loc] + "";
-						while (isLetter(chars[loc + 1]))
+						while (loc + 1 < line.length() && isLetter(chars[loc + 1]))
 						{
 							loc++;
 							word += chars[loc];
@@ -89,6 +89,10 @@ public class MiniParser
 	public static boolean checkValidity(String inputPath) throws IOException
 	{	
 		List<String> tokens = getTokensFromFile(inputPath);
+		for (String token : tokens)
+		{
+			System.out.println(token);
+		}
 		return false;
 	}
 
@@ -101,6 +105,7 @@ public class MiniParser
 		catch (IndexOutOfBoundsException | IOException e)
 		{
 			System.out.println("Please enter a valid input file as a command line parameter.");
+			e.printStackTrace();
 		}
 	}
 }

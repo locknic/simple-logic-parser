@@ -1,0 +1,11 @@
+{ x = true;
+  {  y = z;
+     w = carpark;
+  }
+  if (foolsgold)  {
+     train = wreck;
+  }
+  else  
+       cat = dog;
+  }
+}
