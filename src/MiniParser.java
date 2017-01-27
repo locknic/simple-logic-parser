@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,9 +54,9 @@ public class MiniParser
 		return character >= 'a' && character <= 'z';
 	}
 
-	public static List<String> getTokensFromFile(String inputPath) throws IOException
+	public static List<Token> getTokensFromFile(String inputPath) throws IOException
 	{
-		List<String> tokens = new ArrayList<String>();
+		List<Token> tokens = new LinkedList<Token>();
 
 		try (BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(inputPath)))
 		{
@@ -71,7 +72,7 @@ public class MiniParser
 					{
 						if (!IGNORE_LIST.contains(token))
 						{
-							tokens.add(token);
+							tokens.add(new Token(token, chars[loc]));
 						}
 					}
 					else if (isLetter(chars[loc]))
@@ -85,16 +86,16 @@ public class MiniParser
 						
 						if ((token = KEYWORD_MAP.get(word)) != null)
 						{
-							tokens.add(token);
+							tokens.add(new Token(token, word));
 						}
 						else
 						{
-							tokens.add("IDENTIFIER(" + word + ")");
+							tokens.add(new Token("IDENTIFIER", word));
 						}
 					}
 					else
 					{
-						tokens.add("INVALID(" + chars[loc] + ")");
+						tokens.add(new Token("INVALID", chars[loc]));
 					}
 					loc++;
 				}
@@ -105,10 +106,10 @@ public class MiniParser
 
 	public static boolean checkValidity(String inputPath) throws IOException
 	{	
-		List<String> tokens = getTokensFromFile(inputPath);
-		for (String token : tokens)
+		List<Token> tokens = getTokensFromFile(inputPath);
+		for (Token token : tokens)
 		{
-			System.out.println(token);
+			System.out.println(token.getTokenName() + ", " + token.getImage());
 		}
 		return false;
 	}
