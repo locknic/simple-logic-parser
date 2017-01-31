@@ -1,0 +1,22 @@
+echo "==== Should pass ====="
+java MiniParser test1
+java MiniParser test2
+java MiniParser test3
+java MiniParser test4
+java MiniParser test5
+java MiniParser test6
+java MiniParser test7
+java MiniParser test8
+java MiniParser test9
+java MiniParser test10
+
+echo "==== Should fail ====="
+java MiniParser testbad1
+java MiniParser testbad2
+java MiniParser testbad3
+java MiniParser testbad4
+java MiniParser testbad5
+java MiniParser testbad6
+java MiniParser testbad7
+java MiniParser testbad8
+java MiniParser testbad9

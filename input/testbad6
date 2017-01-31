@@ -2,9 +2,8 @@
   {  y = z;
      w = carpark;
   }
-  if (foolsgold)  {
+  if (if) {
      train = wreck;
-  }
   else  
        cat = dog;
   }

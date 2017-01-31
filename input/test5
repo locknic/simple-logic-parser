@@ -1,0 +1,21 @@
+if (x)
+   if (!(!(z)))
+       y = x;
+   else
+      if (false)
+         if (true)
+            if (false)
+                x = y;
+            else
+                w = q;
+         else
+            p = r;
+       else
+       {
+         z = q;
+         w = !x;
+         p = r;
+       }
+else
+   p = x;
+   

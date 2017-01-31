@@ -1,0 +1,4 @@
+if (x)
+   y = z;
+else
+   y = !z;

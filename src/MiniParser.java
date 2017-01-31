@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +20,7 @@ public class MiniParser
 		Map<Character, TokenType> tokenMap = new HashMap<Character, TokenType>();
 		tokenMap.put(' ', TokenType.SPACE);
 		tokenMap.put('\n', TokenType.NEWLINE);
+		tokenMap.put('\t', TokenType.TAB);
 		tokenMap.put('{', TokenType.LEFT_BRACE);
 		tokenMap.put('}', TokenType.RIGHT_BRACE);
 		tokenMap.put('(', TokenType.LEFT_PARENTHESIS);
@@ -46,6 +46,7 @@ public class MiniParser
 		List<TokenType> ignoreList = new ArrayList<TokenType>();
 		ignoreList.add(TokenType.SPACE);
 		ignoreList.add(TokenType.NEWLINE);
+		ignoreList.add(TokenType.TAB);
 		return Collections.unmodifiableList(ignoreList);
 	}
 
@@ -54,9 +55,10 @@ public class MiniParser
 		return character >= 'a' && character <= 'z';
 	}
 
-	public static List<Token> getTokensFromFile(String inputPath) throws IOException
+	public static TokenManager buildTokenManagerFromFile(String inputPath) throws IOException
 	{
-		List<Token> tokens = new LinkedList<Token>();
+		TokenManager tokens = new TokenManager();
+		int lineCounter = 0;
 
 		try (BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(inputPath)))
 		{
@@ -72,7 +74,7 @@ public class MiniParser
 					{
 						if (!IGNORE_LIST.contains(token))
 						{
-							tokens.add(new Token(token, chars[loc]));
+							tokens.addToken(new Token(token, chars[loc], lineCounter));
 						}
 					}
 					else if (isLetter(chars[loc]))
@@ -86,41 +88,124 @@ public class MiniParser
 
 						if ((token = KEYWORD_MAP.get(word)) != null)
 						{
-							tokens.add(new Token(token, word));
+							tokens.addToken(new Token(token, word, lineCounter));
 						}
 						else
 						{
-							tokens.add(new Token(TokenType.IDENTIFIER, word));
+							tokens.addToken(new Token(TokenType.IDENTIFIER, word, lineCounter));
 						}
 					}
 					else
 					{
-						tokens.add(new Token(TokenType.INVALID, chars[loc]));
+						tokens.addToken(new Token(TokenType.INVALID, chars[loc], lineCounter));
 					}
 					loc++;
 				}
+				
+				lineCounter++;
 			}
 		}
 		return tokens;
 	}
 
-	public static boolean checkIfStatement(Token token)
+	public static boolean checkExpression(TokenManager tokenManager)
 	{
-		if (token.getType() == TokenType.KEYWORD_IF)
+		if (tokenManager.compareNextToken(TokenType.IDENTIFIER))
 		{
-			
+			return true;
 		}
+		else if (tokenManager.compareNextToken(TokenType.KEYWORD_TRUE) || tokenManager.compareNextToken(TokenType.KEYWORD_FALSE))
+		{
+			return true;
+		}
+		else if (tokenManager.compareNextToken(TokenType.NOT))
+		{
+			if (checkExpression(tokenManager))
+			{
+				return true;
+			}
+		}
+		else if (tokenManager.compareNextToken(TokenType.LEFT_PARENTHESIS))
+		{
+			if (checkExpression(tokenManager))
+			{
+				if (tokenManager.compareNextToken(TokenType.RIGHT_PARENTHESIS))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean checkStatement(TokenManager tokenManager)
+	{
+		if (tokenManager.compareNextToken(TokenType.IDENTIFIER))
+		{
+			if (tokenManager.compareNextToken(TokenType.EQUALS))
+			{
+				if (checkExpression(tokenManager))
+				{
+					if (tokenManager.compareNextToken(TokenType.SEMICOLON))
+					{
+						return true;
+					}
+				}
+			}
+		}
+		else if (tokenManager.compareNextToken(TokenType.KEYWORD_IF)) 
+		{
+			if (tokenManager.compareNextToken(TokenType.LEFT_PARENTHESIS))
+			{
+				if (checkExpression(tokenManager))
+				{
+					if (tokenManager.compareNextToken(TokenType.RIGHT_PARENTHESIS))
+					{
+						if (checkStatement(tokenManager))
+						{
+							if (tokenManager.compareNextToken(TokenType.KEYWORD_ELSE))
+							{
+								if (checkStatement(tokenManager))
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else if (tokenManager.compareNextToken(TokenType.LEFT_BRACE))
+		{
+			while (!tokenManager.compareNextToken(TokenType.RIGHT_BRACE))
+			{
+				if (!checkStatement(tokenManager))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		
 		return false;
 	}
 
 	public static boolean checkValidity(String inputPath) throws IOException
 	{
-		List<Token> tokens = getTokensFromFile(inputPath);
-		for (Token token : tokens)
+		TokenManager tokens = buildTokenManagerFromFile(inputPath);
+		if (!tokens.isValid())
 		{
-			System.out.println(token.getType().toString() + ", " + token.getImage());
+			return false;
 		}
-		return false;
+		while (tokens.hasNextToken())
+		{
+			if (!checkStatement(tokens))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static void main(String[] args)

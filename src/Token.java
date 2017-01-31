@@ -4,15 +4,18 @@ public class Token
 	private TokenType type;
 	private String image;
 	
-	public Token(TokenType type, String image)
+	private int beginLine;
+	
+	public Token(TokenType type, String image, int beginLine)
 	{
 		this.type = type;
 		this.image = image;
+		this.beginLine = beginLine;
 	}
 	
-	public Token(TokenType type, char image)
+	public Token(TokenType type, char image, int beginLine)
 	{
-		this(type, image + "");
+		this(type, image + "", beginLine);
 	}
 	
 	public TokenType getType()
@@ -28,6 +31,11 @@ public class Token
 	public boolean isValid()
 	{
 		return type != TokenType.INVALID;
+	}
+	
+	public int getBeginLine()
+	{
+		return beginLine;
 	}
 	
 }
