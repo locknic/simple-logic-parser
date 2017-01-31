@@ -1,28 +1,33 @@
 
 public class Token
 {
-	private String tokenName;
+	private TokenType type;
 	private String image;
 	
-	public Token(String tokenName, String image)
+	public Token(TokenType type, String image)
 	{
-		this.tokenName = tokenName;
+		this.type = type;
 		this.image = image;
 	}
 	
-	public Token(String tokenName, char image)
+	public Token(TokenType type, char image)
 	{
-		this.tokenName = tokenName;
-		this.image = image + "";
+		this(type, image + "");
 	}
 	
-	public String getTokenName()
+	public TokenType getType()
 	{
-		return tokenName;
+		return type;
 	}
+	
 	public String getImage()
 	{
 		return image;
+	}
+	
+	public boolean isValid()
+	{
+		return type != TokenType.INVALID;
 	}
 	
 }

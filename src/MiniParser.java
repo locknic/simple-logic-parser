@@ -11,41 +11,41 @@ import java.util.Map;
 
 public class MiniParser
 {
-	private static final Map<Character, String> TOKEN_MAP = createTokenMap();
-	private static final Map<String, String> KEYWORD_MAP = createKeywordMap();
-	
-	private static final List<String> IGNORE_LIST = createIgnoreList();
-	
-	private static Map<Character, String> createTokenMap()
+	private static final Map<Character, TokenType> TOKEN_MAP = createTokenMap();
+	private static final Map<String, TokenType> KEYWORD_MAP = createKeywordMap();
+
+	private static final List<TokenType> IGNORE_LIST = createIgnoreList();
+
+	private static Map<Character, TokenType> createTokenMap()
 	{
-		Map<Character, String> tokenMap = new HashMap<Character, String>();
-		tokenMap.put(' ', "SPACE");
-		tokenMap.put('\n', "NEWLINE");
-		tokenMap.put('{', "LEFT-BRACE");
-		tokenMap.put('}', "RIGHT-BRACE");
-		tokenMap.put('(', "LEFT-PARENTHESIS");
-		tokenMap.put(')', "RIGHT-PARENTHESIS");
-		tokenMap.put('=', "EQUALS");
-		tokenMap.put('!', "NOT");
-		tokenMap.put(';', "SEMICOLON");
+		Map<Character, TokenType> tokenMap = new HashMap<Character, TokenType>();
+		tokenMap.put(' ', TokenType.SPACE);
+		tokenMap.put('\n', TokenType.NEWLINE);
+		tokenMap.put('{', TokenType.LEFT_BRACE);
+		tokenMap.put('}', TokenType.RIGHT_BRACE);
+		tokenMap.put('(', TokenType.LEFT_PARENTHESIS);
+		tokenMap.put(')', TokenType.RIGHT_PARENTHESIS);
+		tokenMap.put('=', TokenType.EQUALS);
+		tokenMap.put('!', TokenType.NOT);
+		tokenMap.put(';', TokenType.SEMICOLON);
 		return Collections.unmodifiableMap(tokenMap);
 	}
 
-	private static Map<String, String> createKeywordMap()
+	private static Map<String, TokenType> createKeywordMap()
 	{
-		Map<String, String> keywordMap = new HashMap<String, String>();
-		keywordMap.put("if", "KEYWORD-IF");
-		keywordMap.put("else", "KEYWORD-ELSE");
-		keywordMap.put("true", "KEYWORD-TRUE");
-		keywordMap.put("false", "KEYWORD-FALSE");
+		Map<String, TokenType> keywordMap = new HashMap<String, TokenType>();
+		keywordMap.put("if", TokenType.KEYWORD_IF);
+		keywordMap.put("else", TokenType.KEYWORD_ELSE);
+		keywordMap.put("true", TokenType.KEYWORD_TRUE);
+		keywordMap.put("false", TokenType.KEYWORD_FALSE);
 		return Collections.unmodifiableMap(keywordMap);
 	}
-	
-	private static List<String> createIgnoreList()
+
+	private static List<TokenType> createIgnoreList()
 	{
-		List<String> ignoreList = new ArrayList<String>();
-		ignoreList.add("SPACE");
-		ignoreList.add("NEWLINE");
+		List<TokenType> ignoreList = new ArrayList<TokenType>();
+		ignoreList.add(TokenType.SPACE);
+		ignoreList.add(TokenType.NEWLINE);
 		return Collections.unmodifiableList(ignoreList);
 	}
 
@@ -67,7 +67,7 @@ public class MiniParser
 
 				while (loc < line.length())
 				{
-					String token;
+					TokenType token;
 					if ((token = TOKEN_MAP.get(chars[loc])) != null)
 					{
 						if (!IGNORE_LIST.contains(token))
@@ -83,19 +83,19 @@ public class MiniParser
 							loc++;
 							word += chars[loc];
 						}
-						
+
 						if ((token = KEYWORD_MAP.get(word)) != null)
 						{
 							tokens.add(new Token(token, word));
 						}
 						else
 						{
-							tokens.add(new Token("IDENTIFIER", word));
+							tokens.add(new Token(TokenType.IDENTIFIER, word));
 						}
 					}
 					else
 					{
-						tokens.add(new Token("INVALID", chars[loc]));
+						tokens.add(new Token(TokenType.INVALID, chars[loc]));
 					}
 					loc++;
 				}
@@ -104,12 +104,21 @@ public class MiniParser
 		return tokens;
 	}
 
+	public static boolean checkIfStatement(Token token)
+	{
+		if (token.getType() == TokenType.KEYWORD_IF)
+		{
+			
+		}
+		return false;
+	}
+
 	public static boolean checkValidity(String inputPath) throws IOException
-	{	
+	{
 		List<Token> tokens = getTokensFromFile(inputPath);
 		for (Token token : tokens)
 		{
-			System.out.println(token.getTokenName() + ", " + token.getImage());
+			System.out.println(token.getType().toString() + ", " + token.getImage());
 		}
 		return false;
 	}
